@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIERA - Architecture de la Visibilité - DÉMO</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:wght@400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:wght@400&family=Manrope:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, p {
+            margin: 0;
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(26, 26, 26, 0.05);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            color: #1a1a1a;
+        }
+
+        nav {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-link {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.6;
+        }
+
+        main {
+            margin-top: 70px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .hero-content h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 4.5rem;
+            font-weight: 400;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #666666;
+            font-weight: 400;
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            border: 2px solid #1a1a1a;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: #1a1a1a;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* SECTION STYLES */
+        .statement {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .statement h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .statement p {
+            font-size: 1.1rem;
+            color: #666666;
+            max-width: 700px;
+            margin: 1rem auto;
+            font-weight: 400;
+        }
+
+        .pillars {
+            padding: 6rem 2rem;
+            background: #fafafa;
+        }
+
+        .pillars h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pillar {
+            background: #ffffff;
+            padding: 2rem;
+            border: 1px solid #eeeeee;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .pillar:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.08);
+        }
+
+        .pillar-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .pillar p {
+            font-size: 0.95rem;
+            color: #999999;
+            line-height: 1.5;
+        }
+
+        /* IMAGES */
+        .section-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            object-fit: cover;
+            margin: 2rem auto;
+            display: block;
+            border: 1px solid #eeeeee;
+            transition: all 0.3s ease;
+        }
+
+        .section-image:hover {
+            box-shadow: 0 8px 24px rgba(26, 26, 26, 0.12);
+        }
+
+        .image-caption {
+            font-size: 0.85rem;
+            color: #999999;
+            text-align: center;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .offer {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .offer h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+        }
+
+        .offer-box {
+            background: #fafafa;
+            padding: 3rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 1px solid #eeeeee;
+        }
+
+        .offer-box p {
+            font-size: 1.05rem;
+            color: #666666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .target {
+            padding: 6rem 2rem;
+            background: #fafafa;
+            text-align: center;
+        }
+
+        .target h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 3rem;
+        }
+
+        .target-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .target-item {
+            background: #ffffff;
+            padding: 2rem;
+            border: 1px solid #eeeeee;
+        }
+
+        .target-item p {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .blog-preview {
+            padding: 6rem 2rem;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .blog-preview h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 3rem;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .blog-card {
+            background: #fafafa;
+            padding: 2rem;
+            border: 1px solid #eeeeee;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .blog-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.08);
+        }
+
+        .blog-card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .blog-date {
+            font-size: 0.85rem;
+            color: #999999;
+            margin-bottom: 1rem;
+        }
+
+        .cta-final {
+            padding: 6rem 2rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .cta-final h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .cta-final p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .btn-white {
+            background: #ffffff;
+            color: #1a1a1a;
+            border: 2px solid #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-white:hover {
+            background: transparent;
+            color: #ffffff;
+        }
+
+        footer {
+            padding: 2rem;
+            text-align: center;
+            background: #0a0a0a;
+            color: #666666;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .statement h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER & NAVIGATION -->
+    <header>
+        <div class="header-content">
+            <div class="logo">HIERA</div>
+            <nav>
+                <a href="#" class="nav-link">Accueil</a>
+                <a href="#" class="nav-link">À propos</a>
+                <a href="#" class="nav-link">Services</a>
+                <a href="#" class="nav-link">Blog</a>
+                <a href="#" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- SECTION 1 - HERO -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>HIERA</h1>
+                <p class="hero-subtitle">Architecture de la visibilité. Structuration stratégique de la hiérarchie numérique des profils exposés.</p>
+                <a href="#" class="btn">Initier un échange exploratoire</a>
+            </div>
+        </section>
+
+        <!-- SECTION 2 - LE CONSTAT -->
+        <section class="statement">
+            <div class="container">
+                <h2>La visibilité n'est pas un volume.<br/>C'est une hiérarchie.</h2>
+                <p>En phase de croissance ou de levée, la hiérarchie numérique influence la perception stratégique.</p>
+                <p>Ce qui apparaît en premier structure la crédibilité.</p>
+            </div>
+        </section>
+
+        <!-- SECTION 3 - CE QUE NOUS ANALYSONS -->
+        <section class="pillars">
+            <div class="container">
+                <h2>Ce que nous analysons</h2>
+                <div class="pillars-grid">
+                    <div class="pillar">
+                        <div class="pillar-title">Hiérarchie</div>
+                        <p>Structuration et ordonnancement des profils exposés dans l'écosystème numérique.</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-title">Autorité</div>
+                        <p>Crédibilité et légitimité perçues par les parties prenantes et investisseurs.</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-title">Cohérence</div>
+                        <p>Alignement du discours et de la présence sur tous les canaux stratégiques.</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="pillar-title">Fragilités</div>
+                        <p>Identification des risques de visibilité et points de rupture potentiels.</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin: 2rem 0; padding: 2rem; background: #ffffff; border: 1px solid #eeeeee;">
+                    <p style="color: #999999; font-size: 0.9rem;">📸 [Image du bâtiment moderne intégrée ici]</p>
+                    <p class="image-caption">La structure crée la clarté. L'ordre crée la crédibilité.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4 - L'OFFRE -->
+        <section class="offer">
+            <div class="container">
+                <h2>Diagnostic d'Architecture de Visibilité</h2>
+                <div class="offer-box">
+                    <p><strong>7 jours pour comprendre votre position stratégique dans l'écosystème numérique.</strong></p>
+                    <p>Analyse complète de votre hiérarchie numérique, audit de crédibilité, cartographie des fragilités et recommandations structurées.</p>
+                    <a href="#" class="btn btn-secondary">En savoir plus</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5 - POUR QUI -->
+        <section class="target">
+            <div class="container">
+                <h2>Pour qui</h2>
+                <div class="target-list">
+                    <div class="target-item">
+                        <p>Fondateurs en phase de levée ou post levée</p>
+                    </div>
+                    <div class="target-item">
+                        <p>Dirigeants exposés</p>
+                    </div>
+                    <div class="target-item">
+                        <p>Profils à enjeux stratégiques</p>
+                    </div>
+                    <div class="target-item">
+                        <p>Personnalités numériques à forte visibilité</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6 - BLOG PREVIEW -->
+        <section class="blog-preview">
+            <div class="container">
+                <h2>Derniers articles</h2>
+                <div class="blog-grid">
+                    <article class="blog-card">
+                        <h3>La hiérarchie numérique en 2024</h3>
+                        <p class="blog-date">15 mars 2024</p>
+                        <p>Découvrez comment la structuration numérique influence les décisions des investisseurs en phase de levée de fonds.</p>
+                        <a href="#" style="color: #1a1a1a; font-weight: 600;">Lire l'article →</a>
+                    </article>
+                    <article class="blog-card">
+                        <h3>Audit de crédibilité : 5 points clés</h3>
+                        <p class="blog-date">8 mars 2024</p>
+                        <p>Comment évaluer et renforcer votre légitimité perçue dans l'écosystème numérique stratégique.</p>
+                        <a href="#" style="color: #1a1a1a; font-weight: 600;">Lire l'article →</a>
+                    </article>
+                    <article class="blog-card">
+                        <h3>Cohérence multi-canaux : stratégie gagnante</h3>
+                        <p class="blog-date">1 mars 2024</p>
+                        <p>Alignez votre discours sur tous les canaux pour maximiser votre impact stratégique et votre crédibilité.</p>
+                        <a href="#" style="color: #1a1a1a; font-weight: 600;">Lire l'article →</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7 - CTA FINAL -->
+        <section class="cta-final">
+            <div class="container">
+                <h2>Initier un cadrage stratégique</h2>
+                <p>Transformez votre visibilité numérique en avantage stratégique.</p>
+                <a href="#" class="btn btn-white">Nous contacter</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2024 HIERA. Architecture de la visibilité.</p>
+    </footer>
+</body>
+</html>
