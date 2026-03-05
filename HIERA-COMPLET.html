@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIERA - Architecture de la Visibilité</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:wght@400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, p {
+            margin: 0;
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(26, 26, 26, 0.05);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            color: #1a1a1a;
+            cursor: pointer;
+        }
+
+        nav {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-link {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            opacity: 0.6;
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        main {
+            margin-top: 70px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .hero-content h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 4.5rem;
+            font-weight: 400;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #666666;
+            font-weight: 400;
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            border: 2px solid #1a1a1a;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: #1a1a1a;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .btn-white {
+            background: #ffffff;
+            color: #1a1a1a;
+            border: 2px solid #ffffff;
+            font-weight: 600;
+        }
+
+        .btn-white:hover {
+            background: transparent;
+            color: #ffffff;
+        }
+
+        /* SECTIONS */
+        .statement {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .statement h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .statement p {
+            font-size: 1.1rem;
+            color: #666666;
+            max-width: 700px;
+            margin: 1rem auto;
+            font-weight: 400;
+        }
+
+        .pillars {
+            padding: 6rem 2rem;
+            background: #fafafa;
+        }
+
+        .pillars h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pillar {
+            background: #ffffff;
+            padding: 2rem;
+            border: 1px solid #eeeeee;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .pillar:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.08);
+        }
+
+        .pillar-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .pillar p {
+            font-size: 0.95rem;
+            color: #999999;
+            line-height: 1.5;
+        }
+
+        .offer {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .offer h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+        }
+
+        .offer-box {
+            background: #fafafa;
+            padding: 3rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 1px solid #eeeeee;
+        }
+
+        .offer-box p {
+            font-size: 1.05rem;
+            color: #666666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .target {
+            padding: 6rem 2rem;
+            background: #fafafa;
+            text-align: center;
+        }
+
+        .target h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 3rem;
+        }
+
+        .target-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .target-item {
+            background: #ffffff;
+            padding: 2rem;
+            border: 1px solid #eeeeee;
+            transition: all 0.3s ease;
+        }
+
+        .target-item:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.08);
+        }
+
+        .target-item p {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .blog-preview {
+            padding: 6rem 2rem;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .blog-preview h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 3rem;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .blog-card {
+            background: #fafafa;
+            padding: 2rem;
+            border: 1px solid #eeeeee;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .blog-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(26, 26, 26, 0.08);
+        }
+
+        .blog-card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .blog-date {
+            font-size: 0.85rem;
+            color: #999999;
+            margin-bottom: 1rem;
+        }
+
+        .blog-card p {
+            font-size: 0.95rem;
+            color: #666666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .cta-final {
+            padding: 6rem 2rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .cta-final h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .cta-final p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            background: #fafafa;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .page-header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            color: #666666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* CONTENT SECTION */
+        .content-section {
+            padding: 4rem 2rem;
+        }
+
+        .content-section h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .content-section h2:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            font-size: 1rem;
+            color: #666666;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .content-section ul,
+        .content-section ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-section li {
+            margin-bottom: 0.5rem;
+            color: #666666;
+        }
+
+        /* FORM */
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            padding: 0.75rem 1rem;
+            border: 1px solid #eeeeee;
+            background: #ffffff;
+            color: #1a1a1a;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        footer {
+            padding: 2rem;
+            text-align: center;
+            background: #0a0a0a;
+            color: #666666;
+            font-size: 0.85rem;
+        }
+
+        .form-success {
+            display: none;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-success.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .statement h2 {
+                font-size: 2rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER & NAVIGATION -->
+    <header>
+        <div class="header-content">
+            <div class="logo" onclick="showPage('home')">HIERA</div>
+            <nav>
+                <a class="nav-link active" onclick="showPage('home')">Accueil</a>
+                <a class="nav-link" onclick="showPage('about')">À propos</a>
+                <a class="nav-link" onclick="showPage('services')">Services</a>
+                <a class="nav-link" onclick="showPage('blog')">Blog</a>
+                <a class="nav-link" onclick="showPage('contact')">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- PAGE 1: ACCUEIL -->
+        <div id="home" class="page active">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>HIERA</h1>
+                    <p class="hero-subtitle">Architecture de la visibilité. Structuration stratégique de la hiérarchie numérique des profils exposés.</p>
+                    <a onclick="showPage('contact')" class="btn">Initier un échange exploratoire</a>
+                </div>
+            </section>
+
+            <section class="statement">
+                <div class="container">
+                    <h2>La visibilité n'est pas un volume.<br/>C'est une hiérarchie.</h2>
+                    <p>En phase de croissance ou de levée, la hiérarchie numérique influence la perception stratégique.</p>
+                    <p>Ce qui apparaît en premier structure la crédibilité.</p>
+                </div>
+            </section>
+
+            <section class="pillars">
+                <div class="container">
+                    <h2>Ce que nous analysons</h2>
+                    <div class="pillars-grid">
+                        <div class="pillar">
+                            <div class="pillar-title">Hiérarchie</div>
+                            <p>Structuration et ordonnancement des profils exposés dans l'écosystème numérique.</p>
+                        </div>
+                        <div class="pillar">
+                            <div class="pillar-title">Autorité</div>
+                            <p>Crédibilité et légitimité perçues par les parties prenantes et investisseurs.</p>
+                        </div>
+                        <div class="pillar">
+                            <div class="pillar-title">Cohérence</div>
+                            <p>Alignement du discours et de la présence sur tous les canaux stratégiques.</p>
+                        </div>
+                        <div class="pillar">
+                            <div class="pillar-title">Fragilités</div>
+                            <p>Identification des risques de visibilité et points de rupture potentiels.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="offer">
+                <div class="container">
+                    <h2>Diagnostic d'Architecture de Visibilité</h2>
+                    <div class="offer-box">
+                        <p><strong>7 jours pour comprendre votre position stratégique dans l'écosystème numérique.</strong></p>
+                        <p>Analyse complète de votre hiérarchie numérique, audit de crédibilité, cartographie des fragilités et recommandations structurées.</p>
+                        <a onclick="showPage('services')" class="btn btn-secondary">En savoir plus</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="target">
+                <div class="container">
+                    <h2>Pour qui</h2>
+                    <div class="target-list">
+                        <div class="target-item">
+                            <p>Fondateurs en phase de levée ou post levée</p>
+                        </div>
+                        <div class="target-item">
+                            <p>Dirigeants exposés</p>
+                        </div>
+                        <div class="target-item">
+                            <p>Profils à enjeux stratégiques</p>
+                        </div>
+                        <div class="target-item">
+                            <p>Personnalités numériques à forte visibilité</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="blog-preview">
+                <div class="container">
+                    <h2>Derniers articles</h2>
+                    <div class="blog-grid">
+                        <article class="blog-card">
+                            <h3>La hiérarchie numérique en 2024</h3>
+                            <p class="blog-date">15 mars 2024</p>
+                            <p>Découvrez comment la structuration numérique influence les décisions des investisseurs en phase de levée de fonds.</p>
+                            <a onclick="showPage('blog')" style="color: #1a1a1a; font-weight: 600; cursor: pointer;">Lire l'article →</a>
+                        </article>
+                        <article class="blog-card">
+                            <h3>Audit de crédibilité : 5 points clés</h3>
+                            <p class="blog-date">8 mars 2024</p>
+                            <p>Comment évaluer et renforcer votre légitimité perçue dans l'écosystème numérique stratégique.</p>
+                            <a onclick="showPage('blog')" style="color: #1a1a1a; font-weight: 600; cursor: pointer;">Lire l'article →</a>
+                        </article>
+                        <article class="blog-card">
+                            <h3>Cohérence multi-canaux : stratégie gagnante</h3>
+                            <p class="blog-date">1 mars 2024</p>
+                            <p>Alignez votre discours sur tous les canaux pour maximiser votre impact stratégique et votre crédibilité.</p>
+                            <a onclick="showPage('blog')" style="color: #1a1a1a; font-weight: 600; cursor: pointer;">Lire l'article →</a>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cta-final">
+                <div class="container">
+                    <h2>Initier un cadrage stratégique</h2>
+                    <p>Transformez votre visibilité numérique en avantage stratégique.</p>
+                    <a onclick="showPage('contact')" class="btn btn-white">Nous contacter</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 2: À PROPOS -->
+        <div id="about" class="page">
+            <section class="page-header">
+                <div class="container">
+                    <h1>À propos de HIERA</h1>
+                    <p>Comprendre notre vision et notre approche de l'architecture numérique stratégique.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <div class="container">
+                    <h2>Notre vision</h2>
+                    <p>HIERA est née d'un constat simple mais profond : la visibilité numérique n'est pas une question de volume, mais de hiérarchie. Dans un écosystème saturé d'informations, ce qui compte, c'est ce qui apparaît en premier et comment c'est structuré.</p>
+                    <p>Nous avons créé HIERA pour transformer la manière dont les fondateurs, dirigeants et profils stratégiques construisent et gèrent leur présence numérique en phase critique de croissance ou de levée de fonds.</p>
+
+                    <h2>Notre approche</h2>
+                    <p>Notre méthode repose sur quatre piliers fondamentaux :</p>
+                    <ul>
+                        <li><strong>Hiérarchie</strong> — Structurer votre présence pour maximiser l'impact perçu des informations stratégiques.</li>
+                        <li><strong>Autorité</strong> — Construire et démontrer la crédibilité auprès des investisseurs et parties prenantes.</li>
+                        <li><strong>Cohérence</strong> — Aligner votre discours et présence sur tous les canaux numériques critiques.</li>
+                        <li><strong>Fragilités</strong> — Identifier les risques potentiels avant qu'ils ne deviennent problématiques.</li>
+                    </ul>
+
+                    <h2>Pourquoi HIERA</h2>
+                    <p>Nous avons constaté que les fondateurs et dirigeants consacrent d'énormes efforts à développer leur produit ou service, mais négligent souvent la structuration stratégique de leur visibilité numérique. C'est une erreur coûteuse, surtout en phase de levée.</p>
+                    <p>La perception précède la réalité. Ce qui apparaît en premier dans Google, LinkedIn ou les recherches des investisseurs structure leur crédibilité avant même de vous rencontrer.</p>
+                    <p>HIERA comble cette lacune.</p>
+
+                    <h2>Notre engagement</h2>
+                    <p>Nous nous engageons à :</p>
+                    <ul>
+                        <li>Fournir des analyses précises et actionnables en 7 jours maximum.</li>
+                        <li>Adapter notre approche à votre contexte spécifique (levée, repositionnement, gestion de crise).</li>
+                        <li>Rester discrets, professionnels et confidentiels dans tous nos échanges.</li>
+                        <li>Vous donner les outils pour maintenir votre avantage stratégique à long terme.</li>
+                    </ul>
+
+                    <h2>Fondatrice</h2>
+                    <p>HIERA a été créée par une experte en stratégie numérique avec plus d'une décennie d'expérience dans la gestion de la visibilité pour les hauts dirigeants, entreprises en croissance rapide et investisseurs institutionnels.</p>
+                </div>
+            </section>
+
+            <section class="cta-final">
+                <div class="container">
+                    <h2>Prêt à transformer votre visibilité ?</h2>
+                    <p>Découvrez comment HIERA peut structurer votre architecture numérique stratégique.</p>
+                    <a onclick="showPage('contact')" class="btn btn-white">Initier un diagnostic</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 3: SERVICES -->
+        <div id="services" class="page">
+            <section class="page-header">
+                <div class="container">
+                    <h1>Nos services</h1>
+                    <p>Diagnostic et structuration de votre architecture numérique stratégique.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <div class="container">
+                    <h2>Diagnostic d'Architecture de Visibilité</h2>
+                    <p>Notre service phare : une analyse complète de votre hiérarchie numérique en 7 jours, avec recommandations structurées et actionnables.</p>
+
+                    <div class="pillars-grid">
+                        <div class="pillar">
+                            <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 1rem;">Audit complet</h3>
+                            <p>Analyse approfondie de votre présence numérique sur tous les canaux stratégiques.</p>
+                            <ul style="text-align: left; margin: 1rem 0; font-size: 0.9rem;">
+                                <li>Présence Google & SEO</li>
+                                <li>Profils professionnels</li>
+                                <li>Présence média & news</li>
+                                <li>Analyse des backlinks</li>
+                                <li>Évaluation de crédibilité</li>
+                            </ul>
+                        </div>
+
+                        <div class="pillar">
+                            <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 1rem;">Cartographie des risques</h3>
+                            <p>Identification des fragilités et points de rupture potentiels dans votre écosystème numérique.</p>
+                            <ul style="text-align: left; margin: 1rem 0; font-size: 0.9rem;">
+                                <li>Détection des contrefaçons</li>
+                                <li>Analyse des mentions négatives</li>
+                                <li>Évaluation des risques</li>
+                                <li>Matrices de vulnérabilité</li>
+                            </ul>
+                        </div>
+
+                        <div class="pillar">
+                            <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 1rem;">Recommandations</h3>
+                            <p>Plan d'action précis et priorisé pour structurer votre hiérarchie numérique.</p>
+                            <ul style="text-align: left; margin: 1rem 0; font-size: 0.9rem;">
+                                <li>Stratégie multi-canaux</li>
+                                <li>Optimisations immédiates</li>
+                                <li>Plan 90 jours</li>
+                                <li>Indicateurs de suivi</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h2>Processus de diagnostic</h2>
+                    <div style="margin: 2rem 0; padding: 2rem; background: #fafafa; border-left: 3px solid #1a1a1a;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="font-weight: 700; margin-bottom: 0.5rem;">Jour 1-2 : Collecte</h4>
+                            <p>Nous rassemblons toutes les données nécessaires : historique, objectifs, contexte spécifique, phase de levée ou repositionnement.</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="font-weight: 700; margin-bottom: 0.5rem;">Jour 3-5 : Analyse</h4>
+                            <p>Analyse approfondie de votre présence numérique, hiérarchie de visibilité, audit de crédibilité, cartographie des fragilités.</p>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: 700; margin-bottom: 0.5rem;">Jour 6-7 : Recommandations</h4>
+                            <p>Synthèse des résultats, priorités d'action et plan d'implémentation avec indicateurs de suivi.</p>
+                        </div>
+                    </div>
+
+                    <h2>Pour qui</h2>
+                    <p>Nos services s'adressent à :</p>
+                    <ul>
+                        <li><strong>Fondateurs en phase de levée ou post levée</strong> — Structurez votre visibilité avant ou après les tours de financement.</li>
+                        <li><strong>Dirigeants exposés</strong> — Gérez votre réputation numérique et construisez votre autorité.</li>
+                        <li><strong>Profils à enjeux stratégiques</strong> — Optimisez votre présence pour un contexte critique.</li>
+                        <li><strong>Personnalités numériques à forte visibilité</strong> — Protégez et structurez votre présence online.</li>
+                    </ul>
+
+                    <h2>Format de livrable</h2>
+                    <p>Nous livrons un rapport complet contenant :</p>
+                    <ul>
+                        <li>Audit détaillé avec captures d'écran</li>
+                        <li>Scoring de hiérarchie numérique</li>
+                        <li>Analyse de crédibilité perçue</li>
+                        <li>Cartographie des fragilités</li>
+                        <li>Plan d'action priorisé (90 jours)</li>
+                        <li>Recommandations spécifiques par canal</li>
+                        <li>Indicateurs de suivi mensuel</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="cta-final">
+                <div class="container">
+                    <h2>Prêt pour votre diagnostic ?</h2>
+                    <p>Transformez votre visibilité numérique en avantage stratégique.</p>
+                    <a onclick="showPage('contact')" class="btn btn-white">Demander une offre</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 4: BLOG -->
+        <div id="blog" class="page">
+            <section class="page-header">
+                <div class="container">
+                    <h1>Blog HIERA</h1>
+                    <p>Articles et insights sur la visibilité numérique stratégique, la hiérarchie numérique et la crédibilité en phase critique.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <div class="container" style="max-width: 800px;">
+                    <article>
+                        <h2>La hiérarchie numérique en 2024 : pourquoi l'ordre compte plus que le volume</h2>
+                        <p style="color: #999999; font-size: 0.9rem; margin-bottom: 1.5rem;">15 mars 2024 • 8 min de lecture</p>
+                        
+                        <p><strong>Vous avez probablement déjà entendu dire : "La visibilité, c'est important." Mais voici la vérité plus fine : ce qui compte vraiment, ce n'est pas combien de visibilité vous avez, mais comment elle est organisée.</strong></p>
+
+                        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400; margin: 1.5rem 0 0.5rem;">L'illusion du volume</h3>
+                        <p>Beaucoup de fondateurs et dirigeants pensent que plus il y a de contenu, plus il y a de présence, mieux c'est. C'est une erreur stratégique majeure.</p>
+                        <p>Un investisseur qui cherche à vous connaître ne va pas lire 100 articles. Il va faire une recherche Google, regarder les 3 premiers résultats, jeter un œil à LinkedIn, et former une opinion en 5 minutes.</p>
+                        <p>Ce qui apparaît en premier structure 80% de sa perception. Le reste ? À peine regardé.</p>
+
+                        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400; margin: 1.5rem 0 0.5rem;">La hiérarchie : le vrai levier</h3>
+                        <p>C'est là qu'intervient la hiérarchie numérique. Une architecture bien structurée signifie :</p>
+                        <ul>
+                            <li>Les informations les plus stratégiques apparaissent en premier</li>
+                            <li>Votre crédibilité est démontrée immédiatement (pas après 10 clics)</li>
+                            <li>Le narrative que vous contrôlez domine le narrative que vous ne contrôlez pas</li>
+                            <li>Les risques potentiels sont anticipés et gérés</li>
+                        </ul>
+                        <p>En 2024, avec l'IA et les algorithmes qui surfacent d'abord ce qui est le plus pertinent et le mieux structuré, cette hiérarchie est plus critique que jamais.</p>
+
+                        <hr style="margin: 3rem 0; border: none; border-top: 1px solid #eeeeee;">
+
+                        <h2>Audit de crédibilité : les 5 points que chaque investisseur évalue</h2>
+                        <p style="color: #999999; font-size: 0.9rem; margin-bottom: 1.5rem;">8 mars 2024 • 6 min de lecture</p>
+                        
+                        <p><strong>La crédibilité numérique n'est pas mystérieuse. Elle est construite sur des signaux très spécifiques que les investisseurs, partenaires et stakeholders scannent automatiquement.</strong></p>
+
+                        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400; margin: 1.5rem 0 0.5rem;">Les 5 signaux de crédibilité</h3>
+                        <ul>
+                            <li><strong>Cohérence narrative</strong> : Est-ce que votre histoire est la même partout ? Incohérences = perte de crédibilité.</li>
+                            <li><strong>Preuve d'autorité</strong> : Avez-vous des mentions dans des sources respectées ? Les signaux externes comptent énormément.</li>
+                            <li><strong>Engagement social</strong> : Votre présence est-elle active et respectée ? Ou un profil fantôme ?</li>
+                            <li><strong>Absence de signaux négatifs</strong> : Y a-t-il des articles négatifs ? Des conflits publics ?</li>
+                            <li><strong>Clarté de la valeur</strong> : Comprend-on immédiatement ce que vous faites et pourquoi c'est important ?</li>
+                        </ul>
+
+                        <p>Chacun de ces signaux peut être amélioré. C'est là que notre diagnostic intervient : nous identifions précisément où vous êtes faible.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="cta-final">
+                <div class="container">
+                    <h2>Prêt à structurer votre visibilité ?</h2>
+                    <p>Découvrez comment HIERA peut transformer votre architecture numérique.</p>
+                    <a onclick="showPage('contact')" class="btn btn-white">Initier un diagnostic</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 5: CONTACT -->
+        <div id="contact" class="page">
+            <section class="page-header">
+                <div class="container">
+                    <h1>Nous contacter</h1>
+                    <p>Initier votre diagnostic d'architecture de visibilité. Réponse en 24 heures.</p>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <div class="container" style="max-width: 600px;">
+                    <div class="form-success" id="successMessage">
+                        <strong>Merci !</strong> Nous avons reçu votre demande et vous recontacterons très rapidement.
+                    </div>
+
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input type="text" placeholder="Nom" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" placeholder="Entreprise" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="email" placeholder="Email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="tel" placeholder="Téléphone (optionnel)">
+                        </div>
+
+                        <div class="form-group">
+                            <textarea placeholder="Contexte (levée, repositionnement, autre...)" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea placeholder="Message (optionnel)"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn" style="width: 100%;">Envoyer ma demande</button>
+                    </form>
+
+                    <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eeeeee; text-align: center;">
+                        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 1rem;">Réponse garantie</h3>
+                        <p>Nous répondons à chaque demande en moins de 24 heures.</p>
+                        <p>Discrétion et confidentialité assurées.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cta-final">
+                <div class="container">
+                    <h2>Prêt à transformer votre visibilité ?</h2>
+                    <p>Structurez votre architecture numérique en 7 jours.</p>
+                    <a onclick="showPage('home')" class="btn btn-white">Retour à l'accueil</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2024 HIERA. Architecture de la visibilité.</p>
+    </footer>
+
+    <script>
+        function showPage(pageName) {
+            // Masquer toutes les pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            // Afficher la page demandée
+            document.getElementById(pageName).classList.add('active');
+
+            // Mettre à jour les liens de navigation
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Scroller vers le haut
+            window.scrollTo(0, 0);
+        }
+
+        // Gérer le formulaire de contact
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('successMessage').classList.add('show');
+            this.reset();
+            setTimeout(() => {
+                document.getElementById('successMessage').classList.remove('show');
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
